@@ -1,0 +1,92 @@
+#include<LiquidCrystal.h>
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+char str[70];
+String gpsString="$GPGGA,134658.00,5106.9792,N,11402.3003,W,2,09,1.0,1048.47,M,-16.27,M,08,AAAA*60";
+
+char *test="$GPGGA";
+
+String latitude="No Range      ";
+String longitude="No Range     ";
+
+int temp=0,i;
+boolean gps_status=0;
+
+void setup() 
+{
+  lcd.begin(16,2);
+  Serial.begin(9600);
+  
+  lcd.print("Vehicle Tracking");
+  lcd.setCursor(0,1);
+  lcd.print("    System      ");
+  delay(4000);
+  lcd.clear();
+  
+  delay(2000);
+  /*lcd.clear();
+  lcd.print("GPS Range Found");
+  lcd.setCursor(0,1);
+  lcd.print("GPS is Ready");
+  delay(2000);
+  lcd.clear();
+  lcd.print("System Ready");*/
+  get_gps();
+}
+
+void loop()
+{
+    get_gps();
+}
+
+void get_gps()
+{
+   gps_status=0;
+   int x=0;
+   while(gps_status==0)
+   {
+    int str_lenth=81;
+    latitude="";
+    longitude="";
+    int comma=0;
+    
+    while(x<81)
+    {
+      //Serial.println(gpsString[x]);
+      if(gpsString[x]==','){
+      comma++;
+      
+      }
+      if(comma==2)   {    
+      latitude+=gpsString[x+1]; 
+      //Serial.println(latitude);
+      }
+      else if(comma==4)  {     
+      longitude+=gpsString[x+1];
+        //Serial.println(longitude);
+      }
+      
+      x++;
+    }
+    int l1=latitude.length();
+    latitude[l1-1]=' ';
+    l1=longitude.length();
+    longitude[l1-1]=' ';
+    
+    lcd.clear();
+    lcd.println("Lat:"); 
+    lcd.print(latitude);
+    lcd.setCursor(0,1);
+    lcd.print("Long:");
+    lcd.print(longitude);
+   
+    Serial.print("Lat:  ");
+    Serial.print(latitude);
+    Serial.print("\tLong:  ");
+    Serial.println(longitude); 
+    
+    
+    x=0;
+    str_lenth=0;
+    delay(2000);
+   }
+}
